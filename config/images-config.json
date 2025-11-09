@@ -1,7 +1,7 @@
 [
   {
     "name": "prom/node-exporter",
-    "version": [
+    "versions": [
       "latest"
     ],
     "sync-list": [

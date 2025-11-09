@@ -25,7 +25,7 @@ jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
     SOURCE_NAME=$(echo $image | jq -r '.name')
 
     # 获取版本集合
-    SOURCE_VERSIONS=($(echo $image | jq -c '.version[]' "$CONFIG_FILE"))
+    SOURCE_VERSIONS=$(echo $image | jq -c '.versions[]')
 
     # 获取sync-list
     SYNC_LIST=$(echo $repo | jq -c '.["sync-list"][]')
