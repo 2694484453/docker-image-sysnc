@@ -15,47 +15,53 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 
-# 使用jq解析JSON文件
-REPO_NAME=$(jq -r '.name' "$CONFIG_FILE")
-VERSIONS=($(jq -r '.version[]' "$CONFIG_FILE"))
-TARGET_HOST=$(jq -r '.["sync-repo-list"][0].host' "$CONFIG_FILE")
-TARGET_NAMESPACE=$(jq -r '.["sync-repo-list"][0].namespace' "$CONFIG_FILE")
-TARGET_NAME=$(jq -r '.["sync-repo-list"][0].name' "$CONFIG_FILE")
-
-TARGET_REPO="$TARGET_HOST/$TARGET_NAMESPACE/$TARGET_NAME"
-
 # 检查是否安装了jq
 if ! command -v jq &> /dev/null; then
     echo "jq 命令未找到，请先安装 jq"
     exit 1
 fi
+# 读取JSON配置文件中的镜像信息
+jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
+    SOURCE_NAME=$(echo $image ｜ jq -r '.name')
 
-# 循环处理每个版本
-for VERSION in "${VERSIONS[@]}"; do
-    echo "正在处理版本: $VERSION"
+    # 获取版本集合
+    SOURCE_VERSIONS=($(echo $image ｜ jq -c '.version[]' "$CONFIG_FILE"))
 
-    # 拉取镜像
-    docker pull "$REPO_NAME:$VERSION"
-    if [ $? -ne 0 ]; then
-        echo "拉取镜像失败: $REPO_NAME:$VERSION"
-        continue
-    fi
+    # 获取sync-list
+    SYNC_LIST=$(echo $repo | jq -c '.["sync-list"][]')
 
-    # 打标签
-    docker tag "$REPO_NAME:$VERSION" "$TARGET_REPO:$VERSION"
-    if [ $? -ne 0 ]; then
-        echo "打标签失败: $REPO_NAME:$VERSION -> $TARGET_REPO:$VERSION"
-        continue
-    fi
+    #遍历版本集合
+    for SOURCE_VERSION in $SOURCE_VERSIONS; do
+      echo "正在获取"$SOURCE_NAME"的"$SOURCE_VERSION"版本... "
 
-    # 推送镜像
-    docker push "$TARGET_REPO:$VERSION"
-    if [ $? -ne 0 ]; then
-        echo "推送镜像失败: $TARGET_REPO:$VERSION"
-        continue
-    fi
+      # 拉取镜像
+      docker pull "$SOURCE_NAME:$SOURCE_VERSION"
+      if [ $? -ne 0 ]; then
+            echo "拉取镜像失败: $SOURCE_NAME:$SOURCE_VERSION"
+            continue
+       fi
 
-    echo "版本 $VERSION 处理完成"
+      # 遍历sync-list
+      for SYNC in $SYNC_LIST; do
+          TARGET_HOST=$(echo $SYNC ｜ jq -r '.host')
+          TARGET_NAMESPACE=$(echo $SYNC ｜ jq -r '.namespace')
+          TARGET_NAME=$(echo $SYNC ｜ jq -r '.name')
+          TARGET_IMAGE_NAME="$TARGET_HOST/$TARGET_NAMESPACE/$TARGET_NAME"
+          TARGET_VERSION=$SOURCE_VERSION
+           # 打标签
+           docker tag "$SOURCE_NAME:$SOURCE_VERSION" "$TARGET_IMAGE_NAME:$TARGET_VERSION"
+           if [ $? -ne 0 ]; then
+              echo "打标签失败: $SOURCE_NAME:$SOURCE_VERSION -> $TARGET_IMAGE_NAME:$TARGET_VERSION"
+              continue
+           fi
+          # 推送镜像
+           docker push "$TARGET_IMAGE_NAME:$TARGET_VERSION"
+              if [ $? -ne 0 ]; then
+                 echo "推送镜像失败: $TARGET_IMAGE_NAME:$TARGET_VERSION"
+                 continue
+              fi
+                echo "版本 $VERSION 处理完成"
+      done
+    done
 done
-
 echo "所有版本处理完毕"

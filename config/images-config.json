@@ -4,7 +4,7 @@
     "version": [
       "latest"
     ],
-    "sync-repo-list": [
+    "sync-list": [
       {
         "name": "node-exporter",
         "namespace": "gpg_dev",
