@@ -22,10 +22,10 @@ if ! command -v jq &> /dev/null; then
 fi
 # 读取JSON配置文件中的镜像信息
 jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
-    SOURCE_NAME=$(echo $image ｜ jq -r '.name')
+    SOURCE_NAME=$(echo $image | jq -r '.name')
 
     # 获取版本集合
-    SOURCE_VERSIONS=($(echo $image ｜ jq -c '.version[]' "$CONFIG_FILE"))
+    SOURCE_VERSIONS=($(echo $image | jq -c '.version[]' "$CONFIG_FILE"))
 
     # 获取sync-list
     SYNC_LIST=$(echo $repo | jq -c '.["sync-list"][]')
@@ -43,9 +43,9 @@ jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
 
       # 遍历sync-list
       for SYNC in $SYNC_LIST; do
-          TARGET_HOST=$(echo $SYNC ｜ jq -r '.host')
-          TARGET_NAMESPACE=$(echo $SYNC ｜ jq -r '.namespace')
-          TARGET_NAME=$(echo $SYNC ｜ jq -r '.name')
+          TARGET_HOST=$(echo $SYNC | jq -r '.host')
+          TARGET_NAMESPACE=$(echo $SYNC | jq -r '.namespace')
+          TARGET_NAME=$(echo $SYNC | jq -r '.name')
           TARGET_IMAGE_NAME="$TARGET_HOST/$TARGET_NAMESPACE/$TARGET_NAME"
           TARGET_VERSION=$SOURCE_VERSION
            # 打标签
