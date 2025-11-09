@@ -32,7 +32,7 @@ jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
 
     #遍历版本集合
     for SOURCE_VERSION in $SOURCE_VERSIONS; do
-      echo "正在获取"$SOURCE_NAME"的"$SOURCE_VERSION"版本... "
+      echo "正在获取$SOURCE_NAME 的 $SOURCE_VERSION 版本... "
 
       # 拉取镜像
       docker pull "$SOURCE_NAME:$SOURCE_VERSION"
