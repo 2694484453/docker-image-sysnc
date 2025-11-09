@@ -5,7 +5,7 @@ if [ ! -d "~/.docker" ]; then
 fi
 
 #拷贝认证信息
-cp ./auth/auth-config.json  ~/.docker/config.json
+cp ./config/auth-config.json  ~/.docker/config.json
 
 # 读取JSON文件
 CONFIG_FILE="./config/images-config.json"
