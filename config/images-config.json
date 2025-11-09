@@ -1,0 +1,16 @@
+[
+  {
+    "name": "prom/node-exporter",
+    "version": [
+      "latest"
+    ],
+    "sync-repo-list": [
+      {
+        "name": "node-exporter",
+        "namespace": "gpg_dev",
+        "host": "registry.cn-hangzhou.aliyuncs.com"
+      }
+    ]
+  }
+]
+
