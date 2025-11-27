@@ -15,11 +15,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 
-# 检查是否安装了jq
-if ! command -v jq &> /dev/null; then
-    echo "jq 命令未找到，请先安装 jq"
-    exit 1
-fi
 # 读取JSON配置文件中的镜像信息
 jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
     SOURCE_NAME=$(echo $image | jq -r '.name')
