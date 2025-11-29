@@ -17,13 +17,13 @@ fi
 
 # 读取JSON配置文件中的镜像信息
 jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
-    SOURCE_NAME=$(jq -r '.name' <<< "$image")
+    SOURCE_NAME=$(echo $image | jq -r '.["name"]') # 使用索引
 
     # 获取版本集合
-    SOURCE_VERSIONS=$(jq -r '.versions[]' <<< "$image")
+    SOURCE_VERSIONS=$(echo $image | jq -r '.["versions"][]') # 使用索引
 
     # 获取sync-list
-    SYNC_LIST=$(jq -c '.sync-list[]' <<< "$image")
+    SYNC_LIST=$(echo $image | jq -c '.["sync-list"][]') # 使用索引
 
     #遍历版本集合
     for SOURCE_VERSION in $SOURCE_VERSIONS; do
