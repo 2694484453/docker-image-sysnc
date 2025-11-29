@@ -17,22 +17,22 @@ fi
 
 # 读取JSON配置文件中的镜像信息
 jq -c '.[]' "$CONFIG_FILE" | while read -r image; do
-    SOURCE_NAME=$(echo $image | jq -r '.name')
+    SOURCE_NAME=$(jq -r '.name' <<< "$image")
 
     # 获取版本集合
-    SOURCE_VERSIONS=$(echo $image | jq -c '.versions[]')
+    SOURCE_VERSIONS=$(jq -r '.versions[]' <<< "$image")
 
     # 获取sync-list
-    SYNC_LIST=$(echo $repo | jq -c '.["sync-list"][]')
+    SYNC_LIST=$(jq -c '.sync-list[]' <<< "$image")
 
     #遍历版本集合
     for SOURCE_VERSION in $SOURCE_VERSIONS; do
       echo "正在获取 $SOURCE_NAME 的 $SOURCE_VERSION 版本... "
 
       # 拉取镜像
-      docker pull "$SOURCE_NAME:$SOURCE_VERSION"
+      docker pull $SOURCE_NAME:$SOURCE_VERSION
       if [ $? -ne 0 ]; then
-            echo "拉取镜像失败: $SOURCE_NAME:$SOURCE_VERSION"
+            echo "拉取镜像失败: " $SOURCE_NAME:$SOURCE_VERSION
             continue
        fi
 
