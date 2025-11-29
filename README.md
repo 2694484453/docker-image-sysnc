@@ -34,5 +34,5 @@
 > docker、shell  
 
 
-## 协作者
+## 作者
 > gaopuguang(2694484453@qq.com)
